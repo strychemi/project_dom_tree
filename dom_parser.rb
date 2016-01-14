@@ -1,4 +1,4 @@
-Tag = Struct.new(:text, :type, :classes, :id, :name, :children, :parent)
+Tag = Struct.new(:text, :type, :classes, :id, :name, :children, :parent, :closing)
 
 class DomParser
 
@@ -9,7 +9,6 @@ class DomParser
   end
 
   #returns the top level tag
-  #and update the @html_string
   def parse_tag
     tag = Tag.new
     opening_tag = @html_string.match(/^<.*?>/).to_s
@@ -18,27 +17,29 @@ class DomParser
     class_regex = /class=('|")[[a-z0-9]*\W*\s]*?('|")/
     id_regex = /id=('|")[[a-z0-9]*\W*]*?('|")/
     name_regex = /name=('|")[[a-z0-9]*\W*]*?('|")/
-    # text_regex = />(\s*.*?\s*)</
+    self_closing_regex = /^(.*?>.*?)>/
+    text_regex = />(\s*.*?\s*)</
 
     tag.type = opening_tag.match(tag_type_regex).to_s[1..-1]
     tag.classes = opening_tag.match(class_regex).to_s[7..-2].split(' ') if opening_tag.match(class_regex)
     tag.id = opening_tag.match(id_regex).to_s[4..-2]
     tag.name = opening_tag.match(name_regex).to_s[6..-2]
+    tag.text = opening_tag.match(text_regex).to_s  # empty string or nil?
+    tag.closing = @html_string.match(/<\/#{tag.type}>/).to_s
     p tag
-
-    @html_string = @html_string[opening_tag.length..-1]
-    p @html_string
   end
 
   # make our tree
-  def parser_script
+  def parser_script(node)
     return if @html_string == ""
-    #create a outermost Tag (with top level type)
-    current_node = @root
+    # create a outermost Tag (with top level type)
+    current_node = @root  
 
-    current_node.children = parse_tag
-    #cut the html string without extracted tag
-    # everything between tag and closing tag is children
+    # go through the html until we reach the closing tag
+    # parse next level of open/close tags, set them as children to current_node
+
+    # change current_node to be one of the children, recurse 
+
 
     # nested div's: have to count how many div's we have, n, and look for the nth closing tag
     #recurse the above two steps until cut html string doesn't have a tag anymore
