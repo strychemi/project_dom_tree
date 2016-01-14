@@ -5,18 +5,18 @@ def parse_tag(input)
 
   tag = Tag.new
 
-  header_tag = /<h[0-9]>.*?/
-  paragraph_tag = /<p.*?/
   tag_type_regex = /<[a-z]*[0-9]*/
-  class_regex = /class='[[a-z]*\s]*'/
+  class_regex = /class=('|")[[a-z]*\W*\s]*('|") /
+  id_regex = /id=('|")[[a-z]*\W*]*('|")/
 
   tag.type = input.match(tag_type_regex).to_s[1..-1]
-  tag.classes = input.match(class_regex).to_s[7..-2].split(' ')
-
+  tag.classes = input.match(class_regex).to_s[7..-3].split(' ')
+  tag.id = input.match(id_regex).to_s[4..-2]
   return tag
 end
 
-tag = parse_tag("<h3 class='foo bar' id='baz'>")
+tag = parse_tag("<h3 class='foo-bar foo bar test-ing' id='baz'>")
 
 p tag.type
 p tag.classes
+p tag.id
