@@ -8,7 +8,8 @@ class DomParser
     id: /id=('|").*?('|")/,
     left_text: /^.*?</,
     left_tag: /^<[a-z]*.*?>/,
-    open_tag: /<[a-z].*?>/
+    open_tag: /<[a-z].*?>/,
+    close_tag: /<\/.*?>/
   }
 
   def initialize(file)
@@ -19,26 +20,10 @@ class DomParser
 
   #main method, runs everything to build tree datastructure
   def build_tree
+    #puts @html
     generate_node_array
     @document = @tags[0] #root node
     set_children
-  end
-
-  #scans @html string and reads in tags and text
-  def generate_node_array
-    depth = 0
-    string_array = html_string_array
-    puts string_array
-    #for each opening tag: generate Tag, set attributes, increase depth by 1
-    string_array.each do |tag|
-      if tag.match(REGX[:open_tag])
-        @tags << parse_tag(tag, depth)
-        depth += 1
-      #for each closing tag, decrease depth by 1
-      else
-        depth -= 1
-      end
-    end
   end
 
   #converts @html to a string array
@@ -54,11 +39,39 @@ class DomParser
       #elsif text is at beginning of string, save it and cut from @html
       elsif text_match = REGX[:left_text].match(@html)
         string = text_match.to_s[0..-2]
+        #puts string
         result << string
         @html = @html[string.length..-1]
       end
     end
     return result
+  end
+
+  #scans @html string and reads in tags and text
+  def generate_node_array
+    depth = 0
+    text_depth = false
+    string_array = html_string_array
+    #puts string_array
+    #for each opening tag: generate Tag, set attributes, increase depth by 1
+    string_array.each do |element|
+      if element.match(REGX[:open_tag])
+        @tags << parse_tag(element, depth)
+        depth += 1
+        #for each closing tag, decrease depth by 1
+      elsif element.match(REGX[:close_tag])
+        depth -= 1
+        text_depth = true
+      #if element is a text put it in tag attribute of appropriate depth
+      else
+        if text_depth
+          @tags[-2].text += element
+        else
+          @tags.last.text += element
+        end
+        text_depth = false
+      end
+    end
   end
 
   #sets appropriate edges between parent and child nodes
@@ -79,7 +92,7 @@ class DomParser
 
   #parsing tag attributes from input string, depth is given as argument
   def parse_tag(string, depth)
-    new_tag = Tag.new(nil, nil, nil, nil, [])
+    new_tag = Tag.new(nil, nil, nil, "", [])
 
     new_tag.type = string.match(REGX[:type]).to_s[1..-1]
     new_tag.classes = string.match(REGX[:class]).to_s[7..-2].split(' ') if string.match(REGX[:class])
@@ -92,13 +105,14 @@ class DomParser
   #print tags nicely
   def render
     @tags.each do |tag|
-      #print " " * tag.depth
-      puts tag.type
+      puts "#{" " * tag.depth} #{tag.type} #{tag.depth}"
+      puts "#{" " * tag.depth} #{tag.text} #{tag.depth}" if tag.text != ""
     end
+    #puts @tags
   end
 
 end
 
 game = DomParser.new("test.html")
 game.build_tree
-#game.render
+game.render
