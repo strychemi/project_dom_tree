@@ -21,12 +21,9 @@ class DomParser
 
   #main method, runs everything to build tree datastructure
   def build_tree
-    #puts @html
     @string_array = html_string_array
-    #puts @string_array
     generate_node_array
-    @document = @parsed[0] #root node
-    set_children
+    @document = @parsed[0] #set root node
   end
 
   #converts @html to a string array
@@ -42,7 +39,6 @@ class DomParser
       #elsif text is at beginning of string, save it and cut from @html
       elsif text_match = REGX[:left_text].match(@html)
         string = text_match.to_s[0..-2]
-        #puts string
         result << string
         @html = @html[string.length..-1]
       end
@@ -58,6 +54,12 @@ class DomParser
     @string_array.each do |element|
       if element.match(REGX[:open_tag])
         @parsed << parse_tag(element, depth)
+        (@parsed.length-2).downto(0).each do |x|
+          if @parsed[x].depth + 1 == depth
+            @parsed[x].children << @parsed.last
+            break
+          end
+        end
         depth += 1
         #for each closing tag, decrease depth by 1
       elsif element.match(REGX[:close_tag])
@@ -71,22 +73,6 @@ class DomParser
           @parsed.last.text += element
         end
         text_depth = false
-      end
-    end
-  end
-
-  #sets appropriate edges between parent and child nodes
-  def set_children
-    #start current_node at root
-    current_node = @document
-    current_depth = current_node.depth
-    #iterate through tags
-    @parsed[0..-2].each_with_index do |tag, index|
-      next_node = @parsed[index+1]
-      next_depth = next_node.depth
-      if current_depth < next_depth
-        current_node.children << next_node
-        current_node = next_node
       end
     end
   end
@@ -109,11 +95,10 @@ class DomParser
       puts "#{" " * tag.depth} #{tag.type} #{tag.depth}"
       puts "#{" " * tag.depth} #{tag.text} #{tag.depth}" if tag.text != ""
     end
-    #puts @parsed
   end
 
 end
 
-# game = DomParser.new("test.html")
-# game.build_tree
-# game.render
+game = DomParser.new("test.html")
+game.build_tree
+#game.render
