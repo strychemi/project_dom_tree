@@ -16,7 +16,7 @@ class DomParser
   # SELF_CLOSING_REGEX = /^(.*?>.*?)>/
   ROOT_CLOSING = /<\/html>/
 
-  attr_reader :root, :tag_list, :tag_structs
+  attr_reader :root, :tag_list, :tag_structs, :html_string
 
   def initialize
     @html_string = File.open("test.html").readlines[1..-1].map(&:strip).join
@@ -86,3 +86,4 @@ game.tag_structs.each do |tag|
   print " " * tag.depth
   puts tag.type
 end
+puts game.html_string
