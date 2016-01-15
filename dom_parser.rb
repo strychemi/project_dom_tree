@@ -1,4 +1,4 @@
-require_relative 'tag.rb'
+#require_relative 'tag.rb'
 
 Tag = Struct.new(:text, :type, :classes, :id, :name, :children, :parent, :closing, :depth)
 
@@ -16,13 +16,14 @@ class DomParser
   # SELF_CLOSING_REGEX = /^(.*?>.*?)>/
   ROOT_CLOSING = /<\/html>/
 
-  attr_reader :root, :tag_list
+  attr_reader :root, :tag_list, :tag_structs
 
   def initialize
     @html_string = File.open("test.html").readlines[1..-1].map(&:strip).join
     @root = nil
     @depth = 0
     @tag_list = nil
+    @tag_structs = []
   end
 
   # make an array of all tags
@@ -32,18 +33,33 @@ class DomParser
   def find_all_tags
     depth = 0
     @tag_list = @html_string.scan(ALL_TAG_REGEX).map {|array| array[0]}
-    tag_structs = []
     # for each opening tag: generate Tag, set attributes, increase depth by 1
     @tag_list.each do |tag|
       if tag.match(OPEN_TAG_REGEX)
-        tag_structs << set_tag_attributes(tag, depth)
+        @tag_structs << set_tag_attributes(tag, depth)
         depth += 1
       # for each closing tag, decrease depth by 1
       else
         depth -= 1
       end
     end
-    p tag_structs
+  end
+
+  def generate_tree
+    #iterate through @tag_list
+      #as long you are encountering opening tags
+        #set current_node's parent to previous node
+        #set newly encountered node as children to current_node
+    current_node = @tag_structs[0]
+    current_depth = current_node.depth
+    @tag_structs[0..-2].each_with_index do |tag, index|
+      next_node = @tag_structs[index+1]
+      next_depth = next_node.depth
+      if current_depth < next_depth
+        current_node.children << next_node
+        current_node = next_node
+      end
+    end
   end
 
 
@@ -65,3 +81,8 @@ end
 
 game = DomParser.new
 game.find_all_tags
+game.generate_tree
+game.tag_structs.each do |tag|
+  print " " * tag.depth
+  puts tag.type
+end
