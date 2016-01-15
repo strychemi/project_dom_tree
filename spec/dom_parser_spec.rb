@@ -66,20 +66,17 @@ describe DomParser do
       game.instance_variable_set(:@string_array, ["<p>","Before text","<span>","span-text","</span>"," after text.", "</p>"])
       game.generate_node_array
       result = []
+
       result << game.parse_tag("<p>", 0)
       result.last.text += "Before text"
-      result << game.parse_tag("<span>", 1)
-      result.last.text += "span-text"
+
+      span_tag = game.parse_tag("<span>", 1)
+      span_tag.text += "span-text"
+
+      result.last.children << span_tag
       result[0].text += " after text."
-      expect(game.instance_variable_get(:@parsed)).to eq(result)
+
+      expect(game.instance_variable_get(:@parsed)[0]).to eq(result[0])
     end
   end
-
-  describe '#set_children' do
-    it 'sets <head> as child to <html>' do
-      game.build_tree
-      expect(game.instance_variable_get(:@document).children[0].type).to eq("head")
-    end
-  end
-
 end

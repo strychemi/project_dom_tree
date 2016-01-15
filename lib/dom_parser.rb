@@ -56,7 +56,7 @@ class DomParser
         @parsed << parse_tag(element, depth)
         (@parsed.length-2).downto(0).each do |x|
           if @parsed[x].depth + 1 == depth
-            @parsed[x].children << @parsed.last
+            @parsed[x].children << @parsed[-1]
             break
           end
         end
@@ -99,6 +99,6 @@ class DomParser
 
 end
 
-game = DomParser.new("test.html")
-game.build_tree
+#game = DomParser.new("test.html")
+#game.build_tree
 #game.render
