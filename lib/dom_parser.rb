@@ -15,14 +15,15 @@ class DomParser
   def initialize(file)
     @html = File.open(file).readlines[1..-1].map(&:strip).join
     @document = nil
-    @tags = []
+    @string_array = []
+    @parsed = []
   end
 
   #main method, runs everything to build tree datastructure
   def build_tree
     #puts @html
     generate_node_array
-    @document = @tags[0] #root node
+    @document = @parsed[0] #root node
     set_children
   end
 
@@ -51,12 +52,12 @@ class DomParser
   def generate_node_array
     depth = 0
     text_depth = false
-    string_array = html_string_array
-    #puts string_array
+    @string_array = html_string_array
+    #puts @string_array
     #for each opening tag: generate Tag, set attributes, increase depth by 1
-    string_array.each do |element|
+    @string_array.each do |element|
       if element.match(REGX[:open_tag])
-        @tags << parse_tag(element, depth)
+        @parsed << parse_tag(element, depth)
         depth += 1
         #for each closing tag, decrease depth by 1
       elsif element.match(REGX[:close_tag])
@@ -65,9 +66,9 @@ class DomParser
       #if element is a text put it in tag attribute of appropriate depth
       else
         if text_depth
-          @tags[-2].text += element
+          @parsed[-2].text += element
         else
-          @tags.last.text += element
+          @parsed.last.text += element
         end
         text_depth = false
       end
@@ -80,8 +81,8 @@ class DomParser
     current_node = @document
     current_depth = current_node.depth
     #iterate through tags
-    @tags[0..-2].each_with_index do |tag, index|
-      next_node = @tags[index+1]
+    @parsed[0..-2].each_with_index do |tag, index|
+      next_node = @parsed[index+1]
       next_depth = next_node.depth
       if current_depth < next_depth
         current_node.children << next_node
@@ -104,11 +105,11 @@ class DomParser
 
   #print tags nicely
   def render
-    @tags.each do |tag|
+    @parsed.each do |tag|
       puts "#{" " * tag.depth} #{tag.type} #{tag.depth}"
       puts "#{" " * tag.depth} #{tag.text} #{tag.depth}" if tag.text != ""
     end
-    #puts @tags
+    #puts @parsed
   end
 
 end
