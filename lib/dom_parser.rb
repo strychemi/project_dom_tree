@@ -22,7 +22,7 @@ class DomParser
   #main method, runs everything to build tree datastructure
   def build_tree
     @string_array = html_string_array
-    generate_node_array
+    generate_node_tree
     @document = @parsed[0] #set root node
   end
 
@@ -47,13 +47,14 @@ class DomParser
   end
 
   #scans @html string and reads in tags and text
-  def generate_node_array
+  def generate_node_tree
     depth = 0
     text_depth = false
     #for each opening tag: generate Tag, set attributes, increase depth by 1
     @string_array.each do |element|
       if element.match(REGX[:open_tag])
         @parsed << parse_tag(element, depth)
+        #iterate back until you hit a tag with depth higher than current one by 1, then set it's child to the most recently created tag
         (@parsed.length-2).downto(0).each do |x|
           if @parsed[x].depth + 1 == depth
             @parsed[x].children << @parsed[-1]

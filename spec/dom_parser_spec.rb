@@ -52,10 +52,10 @@ describe DomParser do
     end
   end
 
-  describe '#generate_node_array' do
+  describe '#generate_node_tree' do
     it 'makes an array of 1 node' do
       game.instance_variable_set(:@string_array, ["<p>","text", "</p>"])
-      game.generate_node_array
+      game.generate_node_tree
       result = []
       result << game.parse_tag("<p>", 0)
       result.last.text += "text"
@@ -64,7 +64,7 @@ describe DomParser do
 
     it 'makes an array of multiple nodes from nested tags' do
       game.instance_variable_set(:@string_array, ["<p>","Before text","<span>","span-text","</span>"," after text.", "</p>"])
-      game.generate_node_array
+      game.generate_node_tree
       result = []
 
       result << game.parse_tag("<p>", 0)

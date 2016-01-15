@@ -21,14 +21,14 @@ class NodeRenderer
 
   end
 
-  def count_nodes(root, node_count=0)
-    return 1 if root.children.empty?
-    puts root.type
-    puts root.depth
-    puts root.children.length
-    # root.children.each do |child|
-    #   1 + count_nodes(child)
-    # end
+  def count_nodes(current_node, node_count=0)
+    return 1 if current_node.children.empty?
+    #puts root.type
+    #puts root.depth
+    #puts root.children.length
+    root.children.each do |child|
+      return 1 + count_nodes(child)
+    end
 
   end
 end
