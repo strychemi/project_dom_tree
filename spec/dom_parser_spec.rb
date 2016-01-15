@@ -35,22 +35,46 @@ describe DomParser do
       tag = game.parse_tag("<div class='nav nav-collapse'>", 0)
       expect(tag.classes).to eq(["nav","nav-collapse"])
     end
+
     it 'parses a tag with an id' do
       tag = game.parse_tag("<div id='17'>", 0)
       expect(tag.id).to eq("17")
     end
+
     it 'parses a tag with a depth' do
       tag = game.parse_tag("<div id='17'>", 18)
       expect(tag.depth).to eq(18)
     end
-    it 'parses a tag with a classes, an id, and depth"
+
+    it 'parses a tag with a classes, an id, and depth' do
+      tag = game.parse_tag("<li class='bold funky-important' id='poop'>", 3)
+      expect(tag.depth).to eq(3)
+    end
   end
 
   describe '#generate_node_array' do
-    it 'makes an array of tag nodes' do
-      game.instance_variable_set(:@string_array, ["<p>","Before text ", "<span>", "mid text (not included in text attribute of the paragraph tag)", "</span>", " after text.", "</p>"])
+    it 'makes an array of 1 node' do
+      game.instance_variable_set(:@string_array, ["<p>","text", "</p>"])
+      game.generate_node_array
+      result = []
+      result << game.parse_tag("<p>", 0)
+      result.last.text += "text"
+      expect(game.instance_variable_get(:@parsed)).to eq(result)
+    end
 
+    it 'makes an array of multiple nodes from nested tags' do
+      game.instance_variable_set(:@string_array, ["<p>","Before text","<span>","span-text","</span>"," after text.", "</p>"])
+      game.generate_node_array
+      result = []
+      result << game.parse_tag("<p>", 0)
+      result.last.text += "Before text"
+      result << game.parse_tag("<span>", 1)
+      result.last.text += "span-text"
+      result[0].text += " after text."
+      expect(game.instance_variable_get(:@parsed)).to eq(result)
     end
 
   end
+
+
 end

@@ -22,6 +22,8 @@ class DomParser
   #main method, runs everything to build tree datastructure
   def build_tree
     #puts @html
+    @string_array = html_string_array
+    #puts @string_array
     generate_node_array
     @document = @parsed[0] #root node
     set_children
@@ -52,8 +54,6 @@ class DomParser
   def generate_node_array
     depth = 0
     text_depth = false
-    @string_array = html_string_array
-    #puts @string_array
     #for each opening tag: generate Tag, set attributes, increase depth by 1
     @string_array.each do |element|
       if element.match(REGX[:open_tag])
@@ -114,6 +114,6 @@ class DomParser
 
 end
 
-#game = DomParser.new("test.html")
-#game.build_tree
-#game.render
+# game = DomParser.new("test.html")
+# game.build_tree
+# game.render
