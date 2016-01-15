@@ -113,6 +113,6 @@ class DomParser
 
 end
 
-game = DomParser.new("test.html")
-game.build_tree
-game.render
+#game = DomParser.new("test.html")
+#game.build_tree
+#game.render
