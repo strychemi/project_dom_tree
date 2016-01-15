@@ -18,7 +18,7 @@ describe DomParser do
   end
 
   describe '#html_string_array' do
-    it 'converts html_string_1 to an array of parsed elements' do
+    it 'converts html string to an array of parsed elements' do
       game.instance_variable_set(:@html, "<p>Before text <span>mid text (not included in text attribute of the paragraph tag)</span> after text.</p>")
       result = ["<p>","Before text ", "<span>", "mid text (not included in text attribute of the paragraph tag)", "</span>", " after text.", "</p>"]
       expect(game.html_string_array).to eq(result)
@@ -73,8 +73,13 @@ describe DomParser do
       result[0].text += " after text."
       expect(game.instance_variable_get(:@parsed)).to eq(result)
     end
-
   end
 
+  describe '#set_children' do
+    it 'sets <head> as child to <html>' do
+      game.build_tree
+      expect(game.instance_variable_get(:@document).children[0].type).to eq("head")
+    end
+  end
 
 end
