@@ -1,4 +1,4 @@
-Tag = Struct.new(:type, :classes, :id, :text, :children, :depth)
+Tag = Struct.new(:type, :classes, :id, :children, :depth)
 
 class DomParser
 
@@ -69,9 +69,9 @@ class DomParser
       #if element is a text put it in tag attribute of appropriate depth
       else
         if text_depth
-          @parsed[-2].text += element
+          @parsed[-2].children << element
         else
-          @parsed.last.text += element
+          @parsed.last.children << element
         end
         text_depth = false
       end
@@ -80,7 +80,7 @@ class DomParser
 
   #parsing tag attributes from input string, depth is given as argument
   def parse_tag(string, depth)
-    new_tag = Tag.new(nil, nil, nil, "", [])
+    new_tag = Tag.new(nil, nil, "", [])
 
     new_tag.type = string.match(REGX[:type]).to_s[1..-1]
     new_tag.classes = string.match(REGX[:class]).to_s[7..-2].split(' ') if string.match(REGX[:class])
@@ -94,12 +94,12 @@ class DomParser
   def render
     @parsed.each do |tag|
       puts "#{" " * tag.depth} #{tag.type} #{tag.depth}"
-      puts "#{" " * tag.depth} #{tag.text} #{tag.depth}" if tag.text != ""
+      #puts "#{" " * tag.depth} #{tag.text} #{tag.depth}" if tag.text != ""
     end
   end
 
 end
 
-#game = DomParser.new("test.html")
-#game.build_tree
-#game.render
+# game = DomParser.new("test.html")
+# game.build_tree
+# game.render

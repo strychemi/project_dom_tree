@@ -34,8 +34,11 @@ describe NodeRenderer do
       game.build_tree
       root = game.instance_variable_get(:@document)
       node_tree = NodeRenderer.new(root)
-      expect(node_tree.count_nodes(root)).to eq(25)
+      node_tree.count_nodes(root)
+      node_tree.render_tree(root)
+      expect(node_tree.instance_variable_get(:@node_count)).to eq(25)
     end
+
   end
 
   describe '#render' do
