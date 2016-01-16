@@ -23,19 +23,29 @@ class NodeRenderer
 
   def count_nodes(current_node)
 
-    @node_count += 1 if current_node.children.empty?
-    current_node.children.each do |child|
+    if current_node.is_a?(Text) || current_node.children.empty?
       @node_count += 1
+      return
+    end
+
+    current_node.children.each do |child|
       count_nodes(child)
     end
 
   end
 
   def render_tree(node)
-    puts "#{"  " * node.depth} #{node.type} #{node.depth}"
-    #puts "#{"  " * node.depth} #{node.text} #{node.depth}" if node.text != ""
-    node.children.each do |child|
-      render_tree(child)
+    # puts "#{"  " * node.depth} #{node.type} #{node.depth}"
+    # node.children.each do |child|
+    #   render_tree(child)
+    # end
+    if node.is_a?(Text)
+      puts "#{"  " * node.depth} #{node.text} #{node.depth}"
+    else
+      puts "#{"  " * node.depth} #{node.type} #{node.depth}"
+      node.children.each do |child|
+        render_tree(child)
+      end
     end
   end
 

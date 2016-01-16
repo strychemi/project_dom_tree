@@ -1,4 +1,5 @@
-Tag = Struct.new(:type, :classes, :id, :children, :depth)
+Tag = Struct.new(:type, :classes, :id, :children, :depth, :parent)
+Text = Struct.new(:text, :depth)
 
 class DomParser
 
@@ -68,10 +69,11 @@ class DomParser
         text_depth = true
       #if element is a text put it in tag attribute of appropriate depth
       else
+        text_struct = Text.new(element, depth)
         if text_depth
-          @parsed[-2].children << element
+          @parsed[-2].children << text_struct
         else
-          @parsed.last.children << element
+          @parsed.last.children << text_struct
         end
         text_depth = false
       end

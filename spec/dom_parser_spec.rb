@@ -58,8 +58,8 @@ describe DomParser do
       game.generate_node_tree
       result = []
       result << game.parse_tag("<p>", 0)
-      result.last.children << "text"
-      expect(game.instance_variable_get(:@parsed)).to eq(result)
+      result.last.children << Text.new("text", 1)
+      expect(game.instance_variable_get(:@parsed)[0]).to eq(result[0])
     end
 
     it 'makes an array of multiple nodes from nested tags' do
@@ -68,14 +68,13 @@ describe DomParser do
       result = []
 
       result << game.parse_tag("<p>", 0)
-      result.last.children << "Before text"
+      result.last.children << Text.new("Before text", 1)
 
       span_tag = game.parse_tag("<span>", 1)
-      span_tag.children << "span-text"
-      puts span_tag.children
-      puts result[0]
+      span_tag.children << Text.new("span-text", 2)
+
       result[0].children << span_tag
-      result[0].children << " after text."
+      result[0].children << Text.new(" after text.", 1)
 
       game.generate_node_tree
       expect(game.instance_variable_get(:@parsed)[0]).to eq(result[0])
